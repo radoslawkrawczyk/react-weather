@@ -1,9 +1,18 @@
-import React, { Component } from 'react';
-import { Appbar, Button, Container, Input, Divider, Form } from 'muicss/react';
+import React, {
+  Component
+} from 'react';
+import {
+  Appbar,
+  Button,
+  Container,
+  Input,
+  Divider,
+  Form
+} from 'muicss/react';
 import WeatherList from './WeatherList';
 
 class App extends Component {
- 
+
   constructor(props) {
     super(props);
     this.state = {
@@ -20,13 +29,16 @@ class App extends Component {
     let localTiming = localStorage.getItem('timing');
     this.apiKey = '562033bdec58432a878196f58df030ef';
     if (localTiming != null) {
-      this.state ={timing: localTiming}
+      this.setState({
+        timing: localTiming
+      });
+    } else {
+      this.setState({
+        timing: 0
+      });
+
     }
-    else {
-      this.state = {timing: 0};
-      
-    }
-    
+
     this.checkCity = this.checkCity.bind(this);
     this.checkWeather = this.checkWeather.bind(this);
   }
@@ -34,7 +46,9 @@ class App extends Component {
   checkCity(e) {
     console.log(this.state.tempCity);
 
-   this.setState({tempCity: e.target.value});
+    this.setState({
+      tempCity: e.target.value
+    });
 
   }
 
@@ -44,25 +58,37 @@ class App extends Component {
     let currentTime = Math.floor(Date.now() / 1000);
     console.log(this.state.tempCity);
     if (this.state.tempCity !== undefined) {
-    if (this.state.timing === 0 || localStorage.getItem('timing') < currentTime) {
-      this.setState({timing: localStorage.getItem('timing')})  ;
-      localStorage.setItem('timing', currentTime+75);
+      if (this.state.timing === 0 || localStorage.getItem('timing') < currentTime) {
+        this.setState({
+          timing: localStorage.getItem('timing')
+        });
+        localStorage.setItem('timing', currentTime + 75);
 
-      fetch(`http://api.weatherbit.io/v2.0/current?city=${this.state.tempCity}&key=`+this.apiKey, {method: 'get'}).then(resp => resp.json()).then(resp => {
-      this.setState({city: resp.data[0].city_name, weather: resp.data[0].temp+" ℃", country: resp.data[0].country_code});
-      localStorage.setItem('current_value',resp.data[0].city_name+"|"+resp.data[0].temp+"|"+resp.data[0].country_code);
-    });
-    }
-    if (localStorage.getItem('timing') > currentTime) {
-      let sec = localStorage.getItem('timing')-currentTime;
-        this.timingInfo = (sec-(sec%=60))/60+(9<sec?':':':0')+sec+" minutes left";
+        fetch(`http://api.weatherbit.io/v2.0/current?city=${this.state.tempCity}&key=` + this.apiKey, {
+          method: 'get'
+        }).then(resp => resp.json()).then(resp => {
+          this.setState({
+            city: resp.data[0].city_name,
+            weather: resp.data[0].temp + " ℃",
+            country: resp.data[0].country_code
+          });
+          localStorage.setItem('current_value', resp.data[0].city_name + "|" + resp.data[0].temp + "|" + resp.data[0].country_code);
+        });
+      }
+      if (localStorage.getItem('timing') > currentTime) {
+        let sec = localStorage.getItem('timing') - currentTime;
+        this.timingInfo = (sec - (sec %= 60)) / 60 + (9 < sec ? ':' : ':0') + sec + " minutes left";
         let currentValues = localStorage.getItem('current_value');
         if (currentValues) {
-        currentValues = currentValues.split("|");
-        this.setState({city: currentValues[0], weather: currentValues[1] +" ℃", country: currentValues[2]});
+          currentValues = currentValues.split("|");
+          this.setState({
+            city: currentValues[0],
+            weather: currentValues[1] + " ℃",
+            country: currentValues[2]
+          });
         }
+      }
     }
-  }
 
   }
 
